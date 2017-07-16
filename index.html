@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supermarket finder</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-cabaple" content="yes">
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
+    <link rel="stylesheet" href="http://k4r573n.github.io/leaflet-control-osm-geocoder/Control.OSMGeocoder.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"> </script>
+    <script src="http://k4r573n.github.io/leaflet-control-osm-geocoder/Control.OSMGeocoder.js"> </script>
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://domoritz.github.io/leaflet-locatecontrol/dist/L.Control.Locate.min.css" />
+    <script src="https://domoritz.github.io/leaflet-locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+    <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
+	
+	<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css" rel="stylesheet">
+	<link rel="stylesheet" href="leaflet.awesome-markers.css">
+	
+    
+    <script type="text/javascript" src="search.js"></script>
+    <script type="text/javascript" src="K-market.geojson"></script>
+    <script type="text/javascript" src="lidl.geojson"></script>
+    <script type="text/javascript" src="S-market.geojson"></script>
+	<script src="leaflet.awesome-markers.js"></script>
+	
+	<!-- Bootstrap scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	
+
+    
+	<style>
+	body {
+		overflow:hidden;
+		height:100%;
+	}
+	
+	#map {
+		width:100%;
+		height:100%;
+		position:absolute;
+		z-index:1;
+	}
+	
+      pre.ui-title {
+      position:absolute;
+      top:0.5px;
+      left:82px;
+      padding:10px 10px;
+      background:rgba(0,0,0,0.5);
+      color:#fff;
+      font-size:40px;
+      line-height:18px;
+      border-radius:1px;
+	  z-index: 10;
+	  overflow: hidden;
+      } 
+	  
+	.sidebar {
+	position:absolute;
+	top:100px; 
+	right:0; 
+	width:300px;
+	height: 460px;
+ 	bottom:0;
+	overflow-x:auto;
+	background-color:#09D16D;
+	margin:3px;
+	padding:3px;
+	font-size:15px;
+	border-radius:10px;
+	text-align:center;
+	z-index:80;
+	}
+	
+	.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+	}
+
+	.legend {
+    line-height: 18px;
+    color: #555;
+	}
+	
+	.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 1;
+	}
+
+	.ol-toggle-options {
+    z-index: 1000; 
+    position:absolute;
+    right: 53px;
+    top: 55px;
+    padding:0;
+	}
+	
+/*small screen*/
+@media screen and (max-width:500px) {
+}
+
+/*bigger screen*/
+@media screen and (min-width: 501px) {
+}
+
+    </style>
+</head>
+<body>
+
+<!-- Show and hide info -->
+<script>
+    function toggleControlPanel(){
+        var sidebar = document.getElementById("sidebar");
+        if (sidebar.style.display == "none") {
+          sidebar.style.display = "block";
+        }
+        else {
+          sidebar.style.display = "none";
+        }
+    }
+</script>
+	
+<div id="map"></div>
+	
+<div class="ol-toggle-options">  
+	<button class="btn btn-default" title="Information" onClick="toggleControlPanel()" href="#toggle">Info</button>  </div>
+	
+
+
+<div id='sidebar' class='sidebar' style="display:none">
+
+	<p><b>Supermarket finder</b></p>
+	<p> This is a web application designed for locating the nearest supermarket around your location in Espoo. It shows the supermarkets belonging to S-group, K-group and Lidl. </p>
+	<br>
+	<p><b>Usage:</b>
+	<br>You can show your current location by clicking the icon in the left upper corner or type an address in the Find me -search.</p>
+	<p>You can also show the layers with 500 m and 1 km buffers around the supermarkets to check proximity. </p>
+	<br>
+	<p><b>Data source:</b>
+	<br>The data is made based on information from websites of the supermarket chains:<br>
+	<a href="http://www.k-market.fi/"target="_blank">K-group, </a>
+	<a href="https://www.s-kanava.fi/web/s/ajankohtaista"target="_blank">S-group, </a>
+	<a href="http://www.lidl.fi/fi/myymalahaku.htm"target="_blank">Lidl</a>
+	</p>
+</div>
+
+
+<body onload="init()">
+  <pre id='title' class='ui-title'>Welcome to the supermarket finder  </pre>
+
+
+</body>
+</html>
+
